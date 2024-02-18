@@ -1,0 +1,22 @@
+# ninja log v5
+4539	5025	7294367773679988	OpenGL_0.exe	b0678aa75dfd9cfa
+452	4331	7294367766804712	CMakeFiles/OpenGL_0.dir/mainview.cpp.obj	d84065a9b9548990
+1814	7266	7289517881982014	CMakeFiles/OpenGL_0.dir/OpenGL_0_autogen/mocs_compilation.cpp.obj	37e9a15421d9be44
+456	921	7294367732717669	CMakeFiles/OpenGL_0.dir/OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp.obj	2122473a5b009edc
+1837	4806	7289517857332651	CMakeFiles/OpenGL_0.dir/main.cpp.obj	1584404916899075
+270	448	7294367727660225	C:/Users/morit/OneDrive/Documents/Computer Graphics/opengl_0/build-src-Desktop_Qt_6_6_1_MinGW_64_bit-Debug/OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp	b31e71d2f742dc86
+270	448	7294367727660225	OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp	b31e71d2f742dc86
+67	255	7294367726044510	C:/Users/morit/OneDrive/Documents/Computer Graphics/opengl_0/build-src-Desktop_Qt_6_6_1_MinGW_64_bit-Debug/OpenGL_0_autogen/mocs_compilation.cpp	21dde9ad9f6eb1fd
+448	4538	7294367768875279	CMakeFiles/OpenGL_0.dir/mainwindow.cpp.obj	2a559a040b28125d
+67	255	7294367726044510	C:/Users/morit/OneDrive/Documents/Computer Graphics/opengl_0/build-src-Desktop_Qt_6_6_1_MinGW_64_bit-Debug/OpenGL_0_autogen/timestamp	21dde9ad9f6eb1fd
+67	255	7294367726044510	OpenGL_0_autogen/mocs_compilation.cpp	21dde9ad9f6eb1fd
+1831	7192	7289517881230979	CMakeFiles/OpenGL_0.dir/userinput.cpp.obj	87af4a0ffb562481
+67	255	7294367726044510	OpenGL_0_autogen/timestamp	21dde9ad9f6eb1fd
+17	129	7294368482677537	OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp	b31e71d2f742dc86
+17	129	7294368482677537	C:/Users/morit/OneDrive/Documents/Computer Graphics/opengl_0/build-src-Desktop_Qt_6_6_1_MinGW_64_bit-Debug/OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp	b31e71d2f742dc86
+130	188	7294368483576105	CMakeFiles/OpenGL_0.dir/OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp.obj	2122473a5b009edc
+188	422	7294368485853245	OpenGL_0.exe	b0678aa75dfd9cfa
+15	138	7294368572157154	OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp	b31e71d2f742dc86
+15	138	7294368572157154	C:/Users/morit/OneDrive/Documents/Computer Graphics/opengl_0/build-src-Desktop_Qt_6_6_1_MinGW_64_bit-Debug/OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp	b31e71d2f742dc86
+138	193	7294368573108024	CMakeFiles/OpenGL_0.dir/OpenGL_0_autogen/EWIEGA46WW/qrc_resources.cpp.obj	2122473a5b009edc
+194	421	7294368575323598	OpenGL_0.exe	b0678aa75dfd9cfa
