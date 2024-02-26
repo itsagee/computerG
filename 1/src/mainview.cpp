@@ -1,23 +1,13 @@
 #include "mainview.h"
-#include "triangle.h"
+#include "vertex.h"
+
 #include <QDateTime>
 #include <model.h>
 #include <QVector3D>
 
-GLuint nameOfVBO;
-GLuint nameOfVAO;
-GLuint knotVAO;
-GLuint knotVBO;
-
-QMatrix4x4 modelTransform;
-QMatrix4x4 projectionTransform;
-QMatrix4x4 knotModelTransform;
+// to load the model, get the vertex coordinates in order and make the vertex array
 Model knot(":/models/knot.obj");
-float curScale=1.0;
-float curRotX=0.0;
-float curRotY=0.0;
-float curRotZ=0.0;
-QVector<QVector3D> knotCoords= knot.getMeshCoords();//all vertex coordinates in the mesh in order
+QVector<QVector3D> knotCoords= knot.getMeshCoords();
 QVector<Vertex> knotVertices;
 
 /**
@@ -41,10 +31,13 @@ MainView::MainView(QWidget *parent) : QOpenGLWidget(parent) {
  */
 MainView::~MainView() {
   qDebug() << "MainView destructor";
-  // Delete the buffer objects
-  GLuint buffersToDelete[] = { nameOfVBO, nameOfVAO }; // Assuming you want to delete the VBO and VAO
-  glDeleteBuffers(2, buffersToDelete);
-  makeCurrent();
+
+    makeCurrent();
+
+   // Delete the buffer objects (assuming we want to delete all VBOs and VAOs)
+  GLuint buffersToDelete[] = {vbo, vao, knotVAO, knotVBO};
+  glDeleteBuffers(4, buffersToDelete);
+
 }
 
 // --- OpenGL initialization
@@ -77,35 +70,29 @@ void MainView::initializeGL() {
   // Default is GL_LESS
   glDepthFunc(GL_LEQUAL);
 
-  // Set the color to be used by glClear. This is, effectively, the background
-  // color.
+  // Set the color to be used by glClear. This is, effectively, the background color.
   glClearColor(0.37f, 0.42f, 0.45f, 0.0f);
 
 
   //NEW CODE
-  //added new: instantiating three vertices, one for each triangle corner
-  Vertex v1 = {-1.0,1.0,1.0,   1.0,0.0,0.0};//red, left bottom
-  Vertex v2 = {-1.0,-1.0,1.0,    0.0,0.0,1.0};//green, left up bottom
-  Vertex v3 = {1.0,-1.0,1.0,   1.0,1.0,0.0};//blue right bottom
-  Vertex v4 = {1.0,1.0,1.0,   0.0,1.0,0.0};//blue right up bottom
-  Vertex v5 = {0.0,0.0,-1.0,   1.0,0.0,1.0};//top: pink
-  //creating struct with prev defined vertices: last two are bottom
-  Vertex vertices[]={v5,v1,v4,  v5,v4,v3,  v5,v2,v1,   v5,v3,v2,  v2,v3,v1,  v3,v4,v1};
-     //{v5,v4,v1,  v5,v3,v4,  v5,v2,v1,   v5,v3,v2,  v2,v3,v1,  v3,v4,v1};//v4,v1,v3
+  //added new: first we instantiate three vertices, one for each triangle corner
+  Vertex red    = {-1.0,1.0,1.0,    1.0,0.0,0.0};   //red, top left (base)      aka 1
+  Vertex green  = {-1.0,-1.0,1.0,   0.0,0.0,1.0};   //green, top right (base)   aka v2
+  Vertex yellow = {1.0,-1.0,1.0,    1.0,1.0,0.0};   //yellow down right (base)  aka v3
+  Vertex blue   = {1.0,1.0,1.0,     0.0,1.0,0.0};   //blue down left (base)     aka v4
+  Vertex pink   = {0.0,0.0,-1.0,    1.0,0.0,1.0};   //top: pink                 aka v5
 
+  //creat struct with prev defined vertices: note that the last two are for the bottom aka the base of the pyramid
+  Vertex vertices[]={pink,red,blue,  pink,blue,yellow,  pink,green,red,   pink,yellow,green,  green,yellow,red,  yellow,blue,red};
 
-  glGenBuffers(1,&nameOfVBO);
-  glGenVertexArrays(1,&nameOfVAO);
+  glGenBuffers(1,&vbo);
+  glGenVertexArrays(1,&vao);
 
-  //binding to array (since thats how data is laid out) and loading vertex data in VBO
-  glBindVertexArray(nameOfVAO);
-  glBindBuffer(GL_ARRAY_BUFFER, nameOfVBO);
+  //bind to array (since thats how data is laid out) and load vertex data in VBO
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
+  glBindVertexArray(vao);
 
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  //TBD: free vertices here
-
-
-
 
   glEnableVertexAttribArray(0); // For position attribute
   glEnableVertexAttribArray(1); // For color attribute
@@ -114,54 +101,53 @@ void MainView::initializeGL() {
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, x));
 
   // For color attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, red));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, r));
 
-  //Wednesday
-
+  //for part b
   modelTransform.setToIdentity(); // Initialize to identity matrix
   modelTransform.translate(QVector3D(-2.0f, 0.0f, -6.0f)); // Apply translation
   projectionTransform.setToIdentity();
   projectionTransform.perspective(60.0f, (float)width() / height(), 0.2f, 20.0f);
 
-  //NEW CODE
-  //last part: knot
-  //QVector<QVector3D> knotCoords= knot.getMeshCoords();//all vertex coordinates in the mesh in order
-  //QVector<Vertex> knotVertices;
-  for(const QVector3D& kCoord :knotCoords){
+  // part d; knot
+  for(const QVector3D& kCoord : knotCoords){    // in a for loop we get the coordinates and colour for each vertex of the knot
       Vertex vertex;
+
       vertex.x = kCoord.x();
       vertex.y = kCoord.y();
       vertex.z = kCoord.z();
 
-      vertex.red = qBound(0.0f, std::abs(kCoord.x()), 1.0f);
-      vertex.green = qBound(0.0f, std::abs(kCoord.y()), 1.0f);
-      vertex.blue = qBound(0.0f, std::abs(kCoord.z()), 1.0f);
+      vertex.r = qBound(0.0f, std::abs(kCoord.x()), 1.0f);
+      vertex.g = qBound(0.0f, std::abs(kCoord.y()), 1.0f);
+      vertex.b = qBound(0.0f, std::abs(kCoord.z()), 1.0f);
 
-      // Adding the vertex to the array
+      // Finally we need to add each vertex to the array
       knotVertices.append(vertex);
   }
 
-  glGenBuffers(1,&knotVBO);
-  glGenVertexArrays(1,&knotVAO);
+  // generate the vao and vbo for our knot
+  glGenBuffers(1, &knotVBO);
+  glGenVertexArrays(1, &knotVAO);
 
-  //binding to array (since thats how data is laid out) and loading vertex data in VBO
+  // bind to array (since thats how data is laid out) and load vertex data in VBO
   glBindVertexArray(knotVAO);
   glBindBuffer(GL_ARRAY_BUFFER, knotVBO);
 
   glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex)*knotVertices.size(), knotVertices.data(), GL_STATIC_DRAW);
-  //TBD: free vertices here
 
-  glEnableVertexAttribArray(2); // For position attribute
-  glEnableVertexAttribArray(3); // For color attribute
+  glEnableVertexAttribArray(0); // For position attribute
+  glEnableVertexAttribArray(1); // For color attribute
 
   // For position attribute
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, x));
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, x));
 
   // For color attribute
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, red));
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)offsetof(Vertex, r));
 
-  knotModelTransform.setToIdentity(); //Initialize as identity matrix
-  knotModelTransform.translate(QVector3D(2.0f, 0.0f, 6.0f)); // Applying translation
+  // initialize as identity matrix
+  knotModelTransform.setToIdentity();
+  // apply translation
+  knotModelTransform.translate(QVector3D(2.0f, 0.0f, -6.0f));
 
   createShaderProgram();
 }
@@ -188,24 +174,28 @@ void MainView::paintGL() {
 
   shaderProgram.bind();
 
+  // bind vao and shader program for the pyramid
+  glBindVertexArray(vao);
+
   // Setting  values for the model and projection transformations
   shaderProgram.setUniformValue("modelTransform", modelTransform);
   shaderProgram.setUniformValue("projectionTransform", projectionTransform);
-  shaderProgram.setUniformValue("knotModelTransform",knotModelTransform);
-  glBindVertexArray(nameOfVAO);
-  glBindBuffer(GL_ARRAY_BUFFER, nameOfVBO);
+
+  // Draw pyramid here
   glDrawArrays(GL_TRIANGLES, 0, 18);
 
+
+  // bind vao and shader program for the knot
   glBindVertexArray(knotVAO);
-  glBindBuffer(GL_ARRAY_BUFFER, knotVBO);
 
-  // Draw here
+  // and for the knot
+  shaderProgram.setUniformValue("modelTransform", knotModelTransform);
+  shaderProgram.setUniformValue("projectionTransform", projectionTransform);
 
-  glDrawArrays(GL_TRIANGLES,0,knotVertices.size());
+  // Draw knot here
+  glDrawArrays(GL_TRIANGLES, 0, knotVertices.size());
+
   shaderProgram.release();
-
-
-
 
 }
 
@@ -217,8 +207,9 @@ void MainView::paintGL() {
  */
 void MainView::resizeGL(int newWidth, int newHeight) {
   //glViewport defines the area in which gl renders, which should only be the new window size
-    // glViewport(0, 0, newWidth, newHeight);
-    projectionTransform.setToIdentity();//initializing again so we dont mess up anything
+
+    //initializing again so we dont mess up anything
+    projectionTransform.setToIdentity();
     projectionTransform.perspective(60.0f, static_cast<float>(newWidth) / newHeight, 0.2f, 20.0f);
 
 }
@@ -233,14 +224,23 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
   qDebug() << "Rotation changed to (" << rotateX << "," << rotateY << ","
            << rotateZ << ")";
 
-    //modelTransform.setToIdentity();
+    // rotation for the pyramid
     modelTransform.rotate(rotateX-curRotX, QVector3D(1.0f, 0.0f, 0.0f));// x axis rotation
     modelTransform.rotate(rotateY-curRotY, QVector3D(0.0f, 1.0f, 0.0f)); //for y axis
     modelTransform.rotate(rotateZ-curRotZ, QVector3D(0.0f, 0.0f, 1.0f));// for z axis
-    curRotX= rotateX;
-    curRotY= rotateY;
-    curRotZ= rotateZ;
-    update();//without that we just get an empty window
+
+    // rotation for the knot
+    knotModelTransform.rotate(rotateX-curRotX, QVector3D(1.0f, 0.0f, 0.0f));// x axis rotation
+    knotModelTransform.rotate(rotateY-curRotY, QVector3D(0.0f, 1.0f, 0.0f)); //for y axis
+    knotModelTransform.rotate(rotateZ-curRotZ, QVector3D(0.0f, 0.0f, 1.0f));// for z axis
+
+    // reset currents
+    curRotX = rotateX;
+    curRotY = rotateY;
+    curRotZ = rotateZ;
+
+    //without that we just get an empty window
+    update();
 }
 
 /**
@@ -250,12 +250,13 @@ void MainView::setRotation(int rotateX, int rotateY, int rotateZ) {
  */
 void MainView::setScale(float scale) {
   qDebug() << "Scale changed to " << scale;
-    //delTransform.setToIdentity();
-  //added this to ensure scaling twice doesnt lead to multiplied scaling;
-  modelTransform.scale(scale / curScale);
 
-  // Update the current scaling factor
-  curScale = scale;
+    //added the division by curScale to ensure scaling twice doesnt lead to multiplied scaling;
+    modelTransform.scale(scale / curScale);
+    knotModelTransform.scale(scale / curScale);
+
+    // Update the current scaling factor
+    curScale = scale;
 
     update();
 }

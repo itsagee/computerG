@@ -7,6 +7,7 @@
 // These must have the same type and name!
 in vec3 vertColor;
 in vec3 meshVertColor;
+
 // Specify the Uniforms of the fragment shaders
 // uniform vec3 lightPosition; // for example
 
@@ -14,7 +15,10 @@ in vec3 meshVertColor;
 // Usually a vec4 describing a color (Red, Green, Blue, Alpha/Transparency)
 out vec4 fColor;
 out vec4 mColor;
+
 void main() {
+
   fColor = vec4(vertColor, 1.0F);
   mColor = fColor = vec4(vertColor, 1.0F);
+
 }

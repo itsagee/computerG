@@ -11,17 +11,15 @@ layout(location = 1) in vec3 vertColor_in;
 uniform mat4 modelTransform;
 uniform mat4 projectionTransform;
 uniform mat4 knotModelTransform;
+
 // Specify the output of the vertex stage
 out vec3 vertColor;
 
 
-
 void main() {
+
   vec4 trans = modelTransform* vec4(vertCoordinates_in, 1.0F);
   gl_Position = projectionTransform*trans;
   vertColor = vertColor_in;
 
-
 }
-
-//vec4(vertCoordinates_in, 1.0F);

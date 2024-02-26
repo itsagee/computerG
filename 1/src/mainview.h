@@ -52,6 +52,25 @@ class MainView : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
 
   QOpenGLShaderProgram shaderProgram;
 
+  // for part a
+  GLuint vbo;
+  GLuint vao;
+
+  // for part b
+  QMatrix4x4 modelTransform;
+  QMatrix4x4 projectionTransform;
+
+  // for part c
+  float curScale=1.0;
+  float curRotX=0.0;
+  float curRotY=0.0;
+  float curRotZ=0.0;
+
+  // for part d
+  QMatrix4x4 knotModelTransform;
+  GLuint knotVAO;
+  GLuint knotVBO;
+
   void createShaderProgram();
 };
 

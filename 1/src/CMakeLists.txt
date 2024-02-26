@@ -26,7 +26,7 @@ qt_add_executable(OpenGL_1 WIN32 MACOSX_BUNDLE
     userinput.cpp
     model.cpp model.h
     main.cpp
-    triangle.h
+    vertex.h
 )
 
 target_include_directories(OpenGL_1 PRIVATE ${CMAKE_SOURCE_DIR})
