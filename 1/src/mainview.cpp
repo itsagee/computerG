@@ -6,8 +6,8 @@
 #include <QVector3D>
 
 // to load the model, get the vertex coordinates in order and make the vertex array
-Model knot(":/models/knot.obj");
-QVector<QVector3D> knotCoords= knot.getMeshCoords();
+Model knot = Model(":/models/knot.obj");
+QVector<QVector3D> knotCoords = knot.getMeshCoords();
 QVector<Vertex> knotVertices;
 
 /**
@@ -34,9 +34,9 @@ MainView::~MainView() {
 
     makeCurrent();
 
-   // Delete the buffer objects (assuming we want to delete all VBOs and VAOs)
-  GLuint buffersToDelete[] = {vbo, vao, knotVAO, knotVBO};
-  glDeleteBuffers(4, buffersToDelete);
+    // Delete the buffer objects (assuming we want to delete all VBOs and VAOs)
+    GLuint buffersToDelete[] = {vbo, vao, knotVAO, knotVBO};
+    glDeleteBuffers(4, buffersToDelete);
 
 }
 
@@ -110,16 +110,20 @@ void MainView::initializeGL() {
   projectionTransform.perspective(60.0f, (float)width() / height(), 0.2f, 20.0f);
 
   // part d; knot
-  for(const QVector3D& kCoord : knotCoords){    // in a for loop we get the coordinates and colour for each vertex of the knot
+  for(const QVector3D & kCoord : knotCoords){    // in a for loop we get the coordinates and colour for each vertex of the knot
       Vertex vertex;
 
       vertex.x = kCoord.x();
       vertex.y = kCoord.y();
       vertex.z = kCoord.z();
 
-      vertex.r = qBound(0.0f, std::abs(kCoord.x()), 1.0f);
-      vertex.g = qBound(0.0f, std::abs(kCoord.y()), 1.0f);
-      vertex.b = qBound(0.0f, std::abs(kCoord.z()), 1.0f);
+      float x = vertex.x;
+      float y = vertex.y;
+      float z = vertex.z;
+
+      vertex.r = std::min(1.0f, std::abs(x));
+      vertex.g = std::min(1.0f, std::abs(y));
+      vertex.b = std::min(1.0f, std::abs(z));
 
       // Finally we need to add each vertex to the array
       knotVertices.append(vertex);
@@ -190,7 +194,6 @@ void MainView::paintGL() {
 
   // and for the knot
   shaderProgram.setUniformValue("modelTransform", knotModelTransform);
-  shaderProgram.setUniformValue("projectionTransform", projectionTransform);
 
   // Draw knot here
   glDrawArrays(GL_TRIANGLES, 0, knotVertices.size());
